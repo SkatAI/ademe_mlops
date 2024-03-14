@@ -1,22 +1,19 @@
+'''Training the model
+'''
 import pandas as pd
-
+import numpy as np
 pd.options.display.max_columns = 100
 pd.options.display.max_rows = 60
 pd.options.display.max_colwidth = 100
 pd.options.display.precision = 10
 pd.options.display.width = 160
-pd.set_option("display.float_format", "{:.4f}".format)
-import numpy as np
-import typing as t
-from collections import Counter
-from sklearn.preprocessing import OrdinalEncoder
 
 from sklearn.model_selection import train_test_split, GridSearchCV, KFold
 from sklearn.ensemble import RandomForestClassifier
-from sklearn.metrics import classification_report, accuracy_score, roc_auc_score
+from sklearn.metrics import classification_report, accuracy_score
 
 # load data
-input_file = f"./data/dpe_processed_20240314.csv"
+input_file = "./data/dpe_processed_20240314.csv"
 data = pd.read_csv(input_file)
 # shuffle
 data = data.sample(frac=1, random_state=808).reset_index(drop=True)
@@ -62,7 +59,7 @@ print(f"Best model: {grid_search.best_estimator_}")
 # Evaluate on the test set
 yhat = grid_search.predict(X_test)
 print(classification_report(y_test, yhat))
-
+print(f"Accuray: {np.round(accuracy_score(y_test, yhat), 2)}")
 # regroup into predictions dataframe
 probabilities = grid_search.predict_proba(X_test)
 
