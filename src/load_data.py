@@ -10,6 +10,5 @@ print(data.shape)
 
 output_file = f"./data/dpe_tertiaire_20240314.csv"
 import csv
-data.to_csv(output_file, index=False, quoting= csv.QUOTE_ALL)
 
-
+data.to_csv(output_file, index=False, quoting=csv.QUOTE_ALL)

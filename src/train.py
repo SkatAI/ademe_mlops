@@ -1,4 +1,5 @@
 import pandas as pd
+
 pd.options.display.max_columns = 100
 pd.options.display.max_rows = 60
 pd.options.display.max_colwidth = 100
@@ -27,9 +28,7 @@ y = data.iloc[:, -1]  # Target variable
 assert y.name == "etiquette_dpe"
 # id = list(X.n_dpe)
 # Split the data into training and testing sets
-X_train, X_test, y_train, y_test = train_test_split(
-    X, y, test_size=0.2, random_state=808
-)
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=808)
 
 X_train.drop(columns=["n_dpe"], inplace=True)
 id_test = list(X_test.n_dpe)
@@ -80,8 +79,6 @@ feature_names = X_train.columns
 
 # Create a dictionary mapping feature names to their importance
 importance_dict = dict(zip(feature_names, feature_importances))
-importance_dict = dict(
-    sorted(importance_dict.items(), key=lambda item: item[1], reverse=True)
-)
+importance_dict = dict(sorted(importance_dict.items(), key=lambda item: item[1], reverse=True))
 
 print(importance_dict)
