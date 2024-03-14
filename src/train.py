@@ -13,6 +13,17 @@ from sklearn.model_selection import train_test_split, GridSearchCV, KFold
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import classification_report, accuracy_score
 
+
+import mlflow
+
+remote_server_uri = "http://localhost:8088"
+mlflow.set_tracking_uri(remote_server_uri)
+
+# set experiment
+mlflow.set_experiment("experiment_01")
+
+mlflow.sklearn.autolog()
+
 # load data
 input_file = "./data/dpe_processed_20240314.csv"
 data = pd.read_csv(input_file)
@@ -37,13 +48,13 @@ rf = RandomForestClassifier()
 
 # Define the parameter grid
 param_grid = {
-    "n_estimators": [200, 300],  # Number of trees
-    "max_depth": [10],  # Maximum depth of the trees
-    "min_samples_leaf": [1, 5],  # Maximum depth of the trees
+    "n_estimators": [400],  # Number of trees
+    "max_depth": [2, 4],  # Maximum depth of the trees
+    "min_samples_leaf": [2],  # Maximum depth of the trees
 }
 
 # Setup GridSearchCV with k-fold cross-validation
-cv = KFold(n_splits=3, random_state=84, shuffle=True)
+cv = KFold(n_splits=3, random_state=42, shuffle=True)
 
 grid_search = GridSearchCV(
     estimator=rf, param_grid=param_grid, cv=cv, scoring="accuracy", verbose=1
