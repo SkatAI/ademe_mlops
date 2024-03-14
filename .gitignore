@@ -1,0 +1,32 @@
+.vscode
+
+secrets.toml
+
+__init__.py
+
+.mlruns
+mlruns.db
+
+.DS_store
+**/.DS_store
+__pycache__/
+**/__pycache__
+.coverage
+
+.ipynb_checkpoints
+
+.~lock.*
+~$*
+
+*.pyc
+
+*.pkl
+log/*.log
+
+# data
+# *.csv
+# *.pdf
+
+# *.zip
+# *.xml
+
