@@ -1,3 +1,6 @@
+'''
+feature enginerring
+'''
 import pandas as pd
 
 pd.options.display.max_columns = 100
@@ -5,8 +8,7 @@ pd.options.display.max_rows = 60
 pd.options.display.max_colwidth = 100
 pd.options.display.precision = 10
 pd.options.display.width = 160
-pd.set_option("display.float_format", "{:.4f}".format)
-import numpy as np
+
 import re
 import typing as t
 from collections import Counter
@@ -16,6 +18,10 @@ import datetime
 
 
 def rename_columns(columns: t.List[str]) -> t.List[str]:
+    '''
+    rename columns
+    '''
+
     columns = [col.lower() for col in columns]
 
     rgxs = [
@@ -33,21 +39,21 @@ def rename_columns(columns: t.List[str]) -> t.List[str]:
 
 data = pd.read_csv("./data/dpe_tertiaire_20240314.csv")
 
-"""
-Simplifier le nom des colonnes
-"""
+# """
+# Simplifier le nom des colonnes
+# """
 
 data.columns = rename_columns(data.columns)
 
-"""
-rm missing target
-"""
+# """
+# rm missing target
+# """
 target = "etiquette_dpe"
 data.dropna(subset=target, inplace=True)
 
-"""
-categorical columns
-"""
+# """
+# categorical columns
+# """
 
 columns_categorical = [
     "version_dpe",
@@ -65,9 +71,9 @@ columns_categorical = [
 for col in columns_categorical:
     data[col].fillna("non renseigné", inplace=True)
 
-"""
-regroup type energies
-"""
+# """
+# regroup type energies
+# """
 type_energie = []
 for col in [
     "type_energie_principale_chauffage",
@@ -117,9 +123,9 @@ for col in [
 type_energie_count = Counter(type_energie)
 print(type_energie_count.most_common(20))
 
-"""
-regroup type usage
-"""
+# """
+# regroup type usage
+# """
 type_usage = []
 for col in [
     "type_usage_energie_n_1",
@@ -163,9 +169,9 @@ for col in [
 type_usage_count = Counter(type_usage)
 print(type_usage_count.most_common(20))
 
-"""
-Encode categorical columns
-"""
+# """
+# Encode categorical columns
+# """
 encoder = OrdinalEncoder()
 
 data[columns_categorical] = encoder.fit_transform(data[columns_categorical])
@@ -181,18 +187,18 @@ for i, col in enumerate(encoder.feature_names_in_):
 with open("./categorical_mappings.json", "w", encoding="utf-8") as f:
     json.dump(mappings, f, ensure_ascii=False, indent=4)
 
-"""
-date de visite
-"""
+# """
+# date de visite
+# """
 columns_dates = ["date_visite_diagnostiqueur"]
 
 # supprimer le jour, garder annee et mois comme float
 col = "date_visite_diagnostiqueur"
 data[col] = data[col].apply(lambda d: float(".".join(d.split("-")[:2])))
 
-"""
-Floats
-"""
+# """
+# Floats
+# """
 columns_float = [
     "conso_kwhep_m2_an",
     "emission_ges_kgco2_m2_an",
@@ -223,9 +229,9 @@ for n in range(1, 4):
     col = f"frais_annuel_energie_n_{n}"
     data["frais_annuel_energie"] += data[col]
 
-"""
-columns int
-"""
+# """
+# columns int
+# """
 columns_int = [
     "annee_construction",
     "nombre_occupant",
@@ -236,9 +242,9 @@ for col in columns_int:
     data[col].fillna(-1, inplace=True)
     data[col] = data[col].astype(int)
 
-"""
-target : etiquette SPE
-"""
+# """
+# target : etiquette SPE
+# """
 target_encoding = {"A": 1, "B": 2, "C": 3, "D": 4, "E": 5, "F": 6, "G": 7}
 data[target] = data[target].apply(lambda d: target_encoding[d])
 
