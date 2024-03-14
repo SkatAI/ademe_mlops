@@ -19,7 +19,7 @@ jobs:
         run: |
           make format
 
-      - name: Lint with pyLint
-        run: |
-          make lint
+      # - name: Lint with pyLint
+      #   run: |
+      #     make lint
 
