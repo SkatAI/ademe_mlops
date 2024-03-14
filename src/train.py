@@ -1,7 +1,8 @@
-'''Training the model
-'''
+"""Training the model
+"""
 import pandas as pd
 import numpy as np
+
 pd.options.display.max_columns = 100
 pd.options.display.max_rows = 60
 pd.options.display.max_colwidth = 100
