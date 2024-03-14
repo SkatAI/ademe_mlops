@@ -1,6 +1,6 @@
-'''
+"""
 feature enginerring
-'''
+"""
 import pandas as pd
 
 pd.options.display.max_columns = 100
@@ -18,9 +18,9 @@ import datetime
 
 
 def rename_columns(columns: t.List[str]) -> t.List[str]:
-    '''
+    """
     rename columns
-    '''
+    """
 
     columns = [col.lower() for col in columns]
 
