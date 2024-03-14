@@ -1,0 +1,121 @@
+{
+    "version_dpe": {
+        "0": 1.0,
+        "1": 1.1,
+        "2": 2.0,
+        "3": 2.1,
+        "4": 2.2,
+        "5": 2.3
+    },
+    "methode_du_dpe": {
+        "0": "dpe tertiaire bâtiment neuf",
+        "1": "dpe tertiaire bâtiment neuf dans un bâtiment de logement",
+        "2": "dpe tertiaire facture",
+        "3": "dpe tertiaire facture dans un bâtiment de logement",
+        "4": "dpe tertiaire vierge",
+        "5": "dpe tertiaire vierge neuf",
+        "6": "non renseigné"
+    },
+    "categorie_erp": {
+        "0": "1ère Catégorie",
+        "1": "2ème Catégorie",
+        "2": "3ème Catégorie",
+        "3": "4ème Catégorie",
+        "4": "5ème Catégorie",
+        "5": "non renseigné"
+    },
+    "secteur_activite": {
+        "0": "GA : Gares Accessibles au public (chemins de fer, téléphériques, remonte-pentes...)",
+        "1": "GHA : Habitation",
+        "2": "GHO : Hôtel",
+        "3": "GHR : Enseignement",
+        "4": "GHU : Usage sanitaire",
+        "5": "GHW : Bureaux",
+        "6": "GHZ : Usage mixte",
+        "7": "J : Structures d’accueil pour personnes âgées ou personnes handicapées",
+        "8": "L : Salles d'auditions, de conférences, de réunions, de spectacles ou à usage multiple",
+        "9": "M : Magasins de vente, centres commerciaux",
+        "10": "N : Restaurants et débits de boisson",
+        "11": "O : Hôtels et pensions de famille",
+        "12": "OA : Hôtels-restaurants d'Altitude",
+        "13": "P : Salles de danse et salles de jeux",
+        "14": "PA : Établissements de Plein Air",
+        "15": "PS : Parcs de Stationnement couverts",
+        "16": "R : Établissements d’éveil, d’enseignement, de formation, centres de vacances, centres de loisirs sans hébergement",
+        "17": "S : Bibliothèques, centres de documentation",
+        "18": "T : Salles d'exposition à vocation commerciale",
+        "19": "U : Établissements de soins",
+        "20": "V : Établissements de divers cultes",
+        "21": "W : Administrations, banques, bureaux",
+        "22": "X : Établissements sportifs couverts",
+        "23": "Y : Musées",
+        "24": "autres tertiaires non ERP",
+        "25": "locaux d'entreprise (bureaux)"
+    },
+    "type_energie_principale_chauffage": {
+        "0": "Bois",
+        "1": "Combustible fossile",
+        "2": "Fioul domestique",
+        "3": "GPL",
+        "4": "Gaz naturel",
+        "5": "Réseau de Chauffage urbain",
+        "6": "non renseigné",
+        "7": "Électricité"
+    },
+    "type_energie_n_1": {
+        "0": "Bois",
+        "1": "Combustible fossile",
+        "2": "Fioul domestique",
+        "3": "GPL",
+        "4": "Gaz naturel",
+        "5": "Réseau de Chauffage urbain",
+        "6": "non renseigné",
+        "7": "Électricité"
+    },
+    "type_energie_n_2": {
+        "0": "Bois",
+        "1": "Combustible fossile",
+        "2": "Fioul domestique",
+        "3": "GPL",
+        "4": "Gaz naturel",
+        "5": "Réseau de Chauffage urbain",
+        "6": "non renseigné",
+        "7": "Électricité"
+    },
+    "type_energie_n_3": {
+        "0": "Bois",
+        "1": "Combustible fossile",
+        "2": "Fioul domestique",
+        "3": "GPL",
+        "4": "Gaz naturel",
+        "5": "Réseau de Chauffage urbain",
+        "6": "non renseigné",
+        "7": "Électricité"
+    },
+    "type_usage_energie_n_1": {
+        "0": "Ascenseur(s)",
+        "1": "Autres usages",
+        "2": "Chauffage",
+        "3": "Eau Chaude sanitaire",
+        "4": "Eclairage",
+        "5": "Refroidissement",
+        "6": "non renseigné"
+    },
+    "type_usage_energie_n_2": {
+        "0": "Ascenseur(s)",
+        "1": "Autres usages",
+        "2": "Chauffage",
+        "3": "Eau Chaude sanitaire",
+        "4": "Eclairage",
+        "5": "Refroidissement",
+        "6": "non renseigné"
+    },
+    "type_usage_energie_n_3": {
+        "0": "Autres usages",
+        "1": "Chauffage",
+        "2": "Eau Chaude sanitaire",
+        "3": "Eclairage",
+        "4": "Refroidissement",
+        "5": "non renseigné"
+    }
+}
