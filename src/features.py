@@ -1,7 +1,13 @@
 """
 feature enginerring
 """
+import re
+import typing as t
+from collections import Counter
+import json
+import datetime
 import pandas as pd
+from sklearn.preprocessing import OrdinalEncoder
 
 pd.options.display.max_columns = 100
 pd.options.display.max_rows = 60
@@ -9,12 +15,6 @@ pd.options.display.max_colwidth = 100
 pd.options.display.precision = 10
 pd.options.display.width = 160
 
-import re
-import typing as t
-from collections import Counter
-from sklearn.preprocessing import OrdinalEncoder
-import json
-import datetime
 
 
 def rename_columns(columns: t.List[str]) -> t.List[str]:

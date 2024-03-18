@@ -7,7 +7,7 @@ format:
 
 lint:
 # linting
-	pylint --disable=C0301,C0413,C0103 **/features.py
+	pylint --disable=C0301,C0413,C0103 **/*.py
 
 
 precommit: format lint
