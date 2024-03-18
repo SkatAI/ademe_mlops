@@ -1,5 +1,8 @@
 """
 Builds the Ademe dataset from the Ademe API
+- gets results (data and next URL) from API
+- processes results
+- stores data on Azure
 """
 
 import os
@@ -10,12 +13,13 @@ import glob
 import requests
 from azure.storage.blob import BlobServiceClient
 
-CONTAINER_NAME = "ademe-dpe-tertiaire"
-DATA_PATH = f"./data/{CONTAINER_NAME}"
+DATA_PATH = f"./data/ademe-dpe-tertiaire"
 API_PATH = "./data/api/"
 URL_FILE = os.path.join(API_PATH, "url.json")
 RESULTS_FILE = os.path.join(API_PATH, "results.json")
-
+ACCOUNT_NAME = "skatai4ademe4mlops"
+ACCOUNT_KEY = os.environ.get("STORAGE_BLOB_ADEME_MLOPS")
+CONTAINER_NAME = "ademe-dpe-tertiaire"
 
 def interrogate_api():
     """
@@ -98,7 +102,6 @@ def upload_data():
     """
     Uploads local data files to Azure Blob Storage container.
 
-    - Retrieves the storage account name and key from environment variables.
     - Establishes a connection to the Azure Blob Storage using the provided account credentials.
     - Retrieves the list of existing blobs in the specified container.
     - Gets a list of local data files to upload.
@@ -108,12 +111,9 @@ def upload_data():
         STORAGE_BLOB_ADEME_MLOPS: Azure Storage account key.
 
     """
-    # Your storage account name and key
-    account_name = "skatai4ademe4mlops"
-    account_key = os.environ.get("STORAGE_BLOB_ADEME_MLOPS")
 
-    connection_string = f"DefaultEndpointsProtocol=https;AccountName={account_name};"
-    connection_string += f"AccountKey={account_key};EndpointSuffix=core.windows.net"
+    connection_string = f"DefaultEndpointsProtocol=https;AccountName={ACCOUNT_NAME};"
+    connection_string += f"AccountKey={ACCOUNT_KEY};EndpointSuffix=core.windows.net"
 
     blob_service_client = BlobServiceClient.from_connection_string(connection_string)
 
