@@ -24,6 +24,7 @@ __pycache__/
 log/*.log
 
 # data
+data/ademe-dpe-tertiaire/*.json
 # *.csv
 # *.pdf
 

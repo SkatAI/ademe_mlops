@@ -16,7 +16,6 @@ pd.options.display.precision = 10
 pd.options.display.width = 160
 
 
-
 def rename_columns(columns: t.List[str]) -> t.List[str]:
     """
     rename columns
@@ -29,6 +28,8 @@ def rename_columns(columns: t.List[str]) -> t.List[str]:
         (r"²", "2"),
         (r"[(|)]", ""),
         (r"é|è", "e"),
+        (r"â", "a"),
+        (r"^_", "dpe_"),
         (r"_+", "_"),
     ]
     for rgx in rgxs:

@@ -37,4 +37,3 @@ if __name__ == "__main__":
 
     # Predict on a Pandas DataFrame.
     loaded_model.predict(pd.DataFrame(data))
-
