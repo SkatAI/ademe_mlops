@@ -7,35 +7,48 @@ Documentation that goes along with the Airflow tutorial located
 from __future__ import annotations
 import os
 import re
-import requests
 import json
-from datetime import datetime, timedelta
 import time
+from datetime import datetime, timedelta
 import logging
 from urllib.parse import urlparse, parse_qs
-import glob
 import typing as t
+import glob
+import requests
 import pandas as pd
 from azure.storage.blob import BlobServiceClient
 from airflow.models.dag import DAG
-from airflow.operators.bash import BashOperator
 from airflow.operators.python import PythonOperator
 from airflow.models import Variable
 from db_utils import Database
 
-DATA_PATH = f"/opt/airflow/data/"
-DOWNLOADED_FILES_PATH = os.path.join(DATA_PATH, "ademe-dpe-tertiaire", "url.json")
+
+try:
+    ACCOUNT_KEY = Variable.get("STORAGE_BLOB_ADEME_MLOPS")
+    DATA_PATH = "/opt/airflow/data/"
+except:
+    ACCOUNT_KEY = os.environ.get("STORAGE_BLOB_ADEME_MLOPS")
+    DATA_PATH = "/Users/alexis/work/ademe_mlops/data/"
+
+DOWNLOADED_FILES_PATH = os.path.join(DATA_PATH, "ademe-dpe-tertiaire")
 URL_FILE = os.path.join(DATA_PATH, "api", "url.json")
 RESULTS_FILE = os.path.join(DATA_PATH, "api", "results.json")
 CONTAINER_NAME = "ademe-dpe-tertiaire"
 ACCOUNT_NAME = "skatai4ademe4mlops"
 
-try:
-    ACCOUNT_KEY = Variable.get("STORAGE_BLOB_ADEME_MLOPS")
-except:
-    ACCOUNT_KEY = os.environ.get("STORAGE_BLOB_ADEME_MLOPS")
 
 logger = logging.getLogger(__name__)
+
+
+def init_container_client():
+    connection_string = f"DefaultEndpointsProtocol=https;AccountName={ACCOUNT_NAME};"
+    connection_string += f"AccountKey={ACCOUNT_KEY};EndpointSuffix=core.windows.net"
+
+    blob_service_client_ = BlobServiceClient.from_connection_string(connection_string)
+
+    container_client_ = blob_service_client_.get_container_client(container=CONTAINER_NAME)
+    return blob_service_client_, container_client_
+
 
 def rename_columns(columns: t.List[str]) -> t.List[str]:
     """
@@ -59,36 +72,27 @@ def rename_columns(columns: t.List[str]) -> t.List[str]:
     return columns
 
 
-def save_postgresdb():
-    assert os.path.isfile(RESULTS_FILE)
-
-    # read previous API call output
-    with open(RESULTS_FILE, encoding="utf-8") as file:
-        data = json.load(file)
-
-    data = pd.DataFrame(data["results"])
-
-    logger.info(f"loaded {data.shape}")
-
-    # set columns
-    new_columns = rename_columns(data.columns)
-    data.columns = new_columns
-
-    # to_sql
-    db = Database()
-    data.to_sql(name="dpe_tertiaire", con=db.engine, if_exists="append", index=False)
-    db.close()
-
-
-def check_environment_setup():
+def check_environment_setup(*op_args):
     logger.info("--" * 20)
     logger.info(f"[info logger] cwd: {os.getcwd()}")
     logger.info(f"[info logger] URL_FILE: {URL_FILE}")
     assert os.path.isfile(URL_FILE)
     logger.info(f"[info logger] RESULTS_FILE: {RESULTS_FILE}")
     logger.info(f"[info logger] account_key: {ACCOUNT_KEY}")
-    logger.info("--" * 20)
     assert ACCOUNT_KEY is not None
+
+    container_client_ = op_args[0]
+    logger.info(f"[info logger] assert container_client exists \n{container_client_.exists()}")
+    assert container_client_.exists()
+
+    try:
+        pg_password = Variable.get("AZURE_PG_PASSWORD")
+    except:
+        pg_password = os.environ.get("AZURE_PG_PASSWORD")
+
+    assert pg_password is not None
+
+    logger.info("--" * 20)
 
 
 def ademe_api():
@@ -169,7 +173,7 @@ def process_results():
         json.dump(data["results"], file, indent=4, ensure_ascii=False)
 
 
-def upload_data():
+def upload_data(*op_args):
     """
     Uploads local data files to Azure Blob Storage container.
 
@@ -183,15 +187,11 @@ def upload_data():
 
     """
 
-    connection_string = f"DefaultEndpointsProtocol=https;AccountName={ACCOUNT_NAME};"
-    connection_string += f"AccountKey={ACCOUNT_KEY};EndpointSuffix=core.windows.net"
-
-    blob_service_client = BlobServiceClient.from_connection_string(connection_string)
-
-    container_client = blob_service_client.get_container_client(container=CONTAINER_NAME)
+    blob_service_client_ = op_args[0]
+    container_client_ = op_args[1]
 
     # List all blobs in the container
-    blobs_list = [file["name"] for file in container_client.list_blobs()]
+    blobs_list = [file["name"] for file in container_client_.list_blobs()]
 
     # get all data files on local
     local_data_files = glob.glob(f"{DOWNLOADED_FILES_PATH}/*.json")
@@ -199,7 +199,7 @@ def upload_data():
         blob_name = filename.split("/")[-1]
         if blob_name not in blobs_list:
             # upload file to container
-            blob_client = blob_service_client.get_blob_client(
+            blob_client = blob_service_client_.get_blob_client(
                 container=CONTAINER_NAME, blob=blob_name
             )
 
@@ -212,6 +212,71 @@ def upload_data():
             logger.info("Upload completed")
 
 
+def cleanup_local_data(*op_args):
+    """
+    removes downlaoded files only keeps {keep_n}
+    """
+    keep_n = 4
+    container_client_ = op_args[0]
+
+    # List all blobs in the container
+    blobs_list = [file["name"] for file in container_client_.list_blobs()]
+
+    # get all data files on local
+    local_data_files = sorted(glob.glob(f"{DOWNLOADED_FILES_PATH}/*.json"))
+    local_data_files = local_data_files[:-keep_n]
+    # delete all files on local that are in the container
+
+    for filename in local_data_files:
+        blob_name = filename.split("/")[-1]
+        if blob_name in blobs_list:
+            print(blob_name)
+
+            try:
+                os.remove(filename)
+            except Exception as e:
+                print(f"Error occurred: {e}.")
+
+
+def save_postgresdb():
+    assert os.path.isfile(RESULTS_FILE)
+
+    # read previous API call output
+    with open(RESULTS_FILE, encoding="utf-8") as file:
+        data = json.load(file)
+
+    data = pd.DataFrame(data["results"])
+    # set columns
+    new_columns = rename_columns(data.columns)
+    data.columns = new_columns
+    data = data.astype(str).replace("nan", "")
+
+    logger.info(f"loaded {data.shape}")
+
+    # to_sql
+    db = Database()
+    data.to_sql(name="dpe_tertiaire", con=db.engine, if_exists="append", index=False)
+    db.close()
+
+
+def drop_duplicates():
+    query = """
+        DELETE FROM dpe_tertiaire
+        WHERE id IN (
+        SELECT id
+        FROM (
+            SELECT id, ROW_NUMBER() OVER (PARTITION BY n_dpe ORDER BY id DESC) AS rn
+            FROM dpe_tertiaire
+        ) t
+        WHERE t.rn > 1
+        );
+    """
+
+    db = Database()
+    db.execute(query)
+    db.close()
+
+
 with DAG(
     "ademe_data",
     default_args={
@@ -220,18 +285,20 @@ with DAG(
         "email_on_failure": True,
         "email_on_retry": False,
         "retries": 1,
-        "retry_delay": timedelta(minutes=5),
+        "retry_delay": timedelta(minutes=2),
     },
-    description="Sandbox",
-    # schedule=timedelta(hours=1),
-    schedule="*/3 * * * *",
+    description="Get data from ADEME API, save to postgres and in azure bucket, then clean up",
+    schedule="*/5 * * * *",
     start_date=datetime(2024, 1, 1),
     catchup=False,
     tags=["ademe"],
 ) as dag:
+    blob_service_client, container_client = init_container_client()
+
     check_environment_setup = PythonOperator(
         task_id="check_environment_setup",
         python_callable=check_environment_setup,
+        op_args=[container_client],
     )
 
     ademe_api = PythonOperator(
@@ -247,6 +314,11 @@ with DAG(
     upload_data = PythonOperator(
         task_id="upload_data",
         python_callable=upload_data,
+        op_args=[blob_service_client, container_client],
+    )
+
+    cleanup_local_data = PythonOperator(
+        task_id="cleanup_local_data", python_callable=cleanup_local_data, op_args=[container_client]
     )
 
     save_postgresdb = PythonOperator(
@@ -254,11 +326,16 @@ with DAG(
         python_callable=save_postgresdb,
     )
 
-    # check_environment_setup >> ademe_api >> [save_postgresdb, process_results >> upload_data]
+    drop_duplicates = PythonOperator(
+        task_id="drop_duplicates",
+        python_callable=drop_duplicates,
+    )
 
     check_environment_setup.set_downstream(ademe_api)
-    # ademe_api.set_downstream([save_postgresdb, process_results])
-    ademe_api.set_downstream(save_postgresdb)
     ademe_api.set_downstream(process_results)
+    # save to postgres
+    ademe_api.set_downstream(save_postgresdb)
+    save_postgresdb.set_downstream(drop_duplicates)
+    # upload data
     process_results.set_downstream(upload_data)
-    # t1.set_downstream([t2, t3])
+    upload_data.set_downstream(cleanup_local_data)

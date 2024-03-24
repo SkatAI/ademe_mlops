@@ -2,13 +2,20 @@ import psycopg2
 from sqlalchemy import create_engine
 import os
 
+from airflow.models import Variable
+
 
 class Database:
     def __init__(self):
+        try:
+            pg_password = Variable.get("AZURE_PG_PASSWORD")
+        except:
+            pg_password = os.environ.get("AZURE_PG_PASSWORD")
+
         db_params = {
             "dbname": "ademe",
             "user": "alexisperrier",
-            "password": os.environ.get("AZURE_PG_PASSWORD"),
+            "password": pg_password,
             "host": "ademe-mlops-db.postgres.database.azure.com",
             "port": "5432",
             "sslmode": "require",
@@ -26,10 +33,10 @@ class Database:
         self.connection.commit()
         cursor.close()
 
-    def execute(self, query):
+    def execute(self, query_):
         cursor = self.connection.cursor()
 
-        cursor.execute(query)
+        cursor.execute(query_)
         self.connection.commit()
         cursor.close()
 
