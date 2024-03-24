@@ -40,7 +40,10 @@ Then, create an Azure Container Registry:
 az acr create --resource-group ademe-mlops --name ademeairflowregistry --sku Basic
 ```
 
-
+check with
+```bash
+az acr list
+```
 
 ### 3. Prepare the Airflow Docker image
 

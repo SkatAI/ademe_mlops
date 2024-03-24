@@ -37,7 +37,6 @@ except:
 
 logger = logging.getLogger(__name__)
 
-
 def rename_columns(columns: t.List[str]) -> t.List[str]:
     """
     rename columns
@@ -225,7 +224,7 @@ with DAG(
     },
     description="Sandbox",
     # schedule=timedelta(hours=1),
-    schedule="*/30 * * * *",
+    schedule="*/3 * * * *",
     start_date=datetime(2024, 1, 1),
     catchup=False,
     tags=["ademe"],
