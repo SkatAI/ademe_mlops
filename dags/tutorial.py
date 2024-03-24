@@ -61,7 +61,7 @@ default_args = {
 
 # [START instantiate_dag]
 with DAG(
-    "cooked_lobster",
+    "lunchtime_soon",
     # These args will get passed on to each operator
     # You can override them on a per-task basis during operator initialization
     default_args=default_args,
@@ -122,5 +122,6 @@ with DAG(
     )
     # [END jinja_template]
 
-    t1 >> [t2, t3]
+    # t1 >> [t2, t3]
+    t1 >> t2 >> t3
 # [END tutorial]
