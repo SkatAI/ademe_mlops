@@ -22,7 +22,6 @@ from airflow.operators.python import PythonOperator
 from airflow.models import Variable
 from db_utils import Database
 
-
 try:
     ACCOUNT_KEY = Variable.get("STORAGE_BLOB_ADEME_MLOPS")
     DATA_PATH = "/opt/airflow/data/"
@@ -251,10 +250,38 @@ def save_postgresdb():
     data.columns = new_columns
     data = data.astype(str).replace("nan", "")
 
+    # now check that the data does not have columns not already in the table
+    db = Database()
+    check_cols_query = """
+        SELECT column_name
+        FROM information_schema.columns
+        WHERE table_schema = 'public'
+        AND table_name   = 'dpe_tertiaire';
+    """
+    table_cols = pd.read_sql(check_cols_query, con=db.engine)
+    table_cols = [col for col in table_cols["column_name"] if col != "id"]
+
+    # drop data columns not in table_cols
+    for col in data.columns:
+        if col not in table_cols:
+            data.drop(columns=[col], inplace=True)
+            logger.info(f"dropped column {col} from dataset")
+
+    # add empty columns in data that are in the table
+    for col in table_cols:
+        if col not in data.columns:
+            if col in ["created_at", "modified_at"]:
+                data[col] = datetime.now()
+            else:
+                data[col] = ""
+            logger.info(f"added column {col} in data")
+
+    # data = data[table_cols].copy()
+    assert sorted(data.columns) == sorted(table_cols)
+
     logger.info(f"loaded {data.shape}")
 
     # to_sql
-    db = Database()
     data.to_sql(name="dpe_tertiaire", con=db.engine, if_exists="append", index=False)
     db.close()
 

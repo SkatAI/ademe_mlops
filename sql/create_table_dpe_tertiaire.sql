@@ -67,3 +67,6 @@ CREATE TABLE dpe_tertiaire (
     type_usage_energie_n_3 TEXT DEFAULT '',
     version_dpe TEXT DEFAULT ''
 );
+
+ALTER TABLE dpe_tertiaire  ADD COLUMN created_at TIMESTAMP WITHOUT TIME ZONE DEFAULT now();
+ALTER TABLE dpe_tertiaire  ADD COLUMN modified_at TIMESTAMP WITHOUT TIME ZONE DEFAULT now();
