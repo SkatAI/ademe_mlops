@@ -46,6 +46,8 @@ data = pd.read_csv("./data/dpe_tertiaire_20240314.csv")
 
 data.columns = rename_columns(data.columns)
 
+assert 1 == 2
+
 # """
 # rm missing target
 # """

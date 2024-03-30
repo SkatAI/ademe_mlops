@@ -1,4 +1,0 @@
-CREATE TABLE data_train (
-    id SERIAL PRIMARY KEY,
-    payload TEXT DEFAULT '',
-);

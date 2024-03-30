@@ -1,0 +1,8 @@
+CREATE TABLE dpe_training (
+    id SERIAL PRIMARY KEY,
+    n_dpe TEXT DEFAULT '',
+    payload TEXT DEFAULT ''
+);
+ALTER TABLE dpe_training  ADD COLUMN created_at TIMESTAMP WITHOUT TIME ZONE DEFAULT now();
+ALTER TABLE dpe_training  ADD COLUMN modified_at TIMESTAMP WITHOUT TIME ZONE DEFAULT now();
+
