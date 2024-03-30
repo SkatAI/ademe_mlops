@@ -172,11 +172,31 @@ class FeatureSets:
         "Abonnements": 9,
         "Production d'électricité à demeure": 10,
     }
-    payload_columns = ['etiquette_dpe', 'etiquette_ges', 'version_dpe',
-       'periode_construction', 'secteur_activite',
-       'type_energie_principale_chauffage', 'type_energie_n_1',
-       'type_usage_energie_n_1', 'surface_utile', 'conso_kwhep_m2_an',
-       'conso_e_finale_energie_n_1']
+    payload_columns = [
+        "etiquette_dpe",
+        "etiquette_ges",
+        "version_dpe",
+        "periode_construction",
+        "secteur_activite",
+        "type_energie_principale_chauffage",
+        "type_energie_n_1",
+        "type_usage_energie_n_1",
+        "surface_utile",
+        "conso_kwhep_m2_an",
+        "conso_e_finale_energie_n_1",
+    ]
+
+    train_columns = [
+        "version_dpe",
+        "periode_construction",
+        "secteur_activite",
+        "type_energie_principale_chauffage",
+        "type_energie_n_1",
+        "type_usage_energie_n_1",
+        "surface_utile",
+        "conso_kwhep_m2_an",
+        "conso_e_finale_energie_n_1",
+    ]
 
 
 class FeatureProcessor:
@@ -253,4 +273,3 @@ if __name__ == "__main__":
     db.close()
     fp = FeatureProcessor(data, "etiquette_dpe")
     fp.process()
-

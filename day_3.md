@@ -11,14 +11,15 @@ Given
 - airflow pipeline: get data from ademe API, stores in storage and sql db
     - [S] create db on Azure: instanciate,
     - [S] create table
-    - run new pipeline
+    - run new pipelines: get data et transform
 
 Retour au modele
 - get data from db
 - transform data
     - [poss]: Great expectations
     - simplify data process
-- train model
+**- train model**
+    - simple training class
     - [S] create databricks community account
     - track with MLflow (which one: local or databricks)
 - promote model

@@ -21,6 +21,7 @@ logger = logging.getLogger(__name__)
 # instanciate class
 # ---------------------------------------------
 
+
 def transform():
     db = Database()
     columns = ",".join(FeatureSets.input_columns)
@@ -35,14 +36,16 @@ def transform():
     # handled by the DAG
     fp = FeatureProcessor(data, "etiquette_dpe")
     fp.process()
-    print( fp.data.head())
+    print(fp.data.head())
     # save to db
 
     fp.data = fp.data.astype(str)
     for i, d in fp.data.iterrows():
-        fp.data.loc[i, 'payload'] = json.dumps( dict(d)  )
+        fp.data.loc[i, "payload"] = json.dumps(dict(d))
 
-    fp.data[['n_dpe', 'payload']].to_sql(name="dpe_training", con=db.engine, if_exists="append", index=False)
+    fp.data[["n_dpe", "payload"]].to_sql(
+        name="dpe_training", con=db.engine, if_exists="append", index=False
+    )
 
     db.close()
 
@@ -64,6 +67,7 @@ def drop_duplicates():
     db.execute(query)
     db.close()
 
+
 # ---------------------------------------------
 #  DAG
 # ---------------------------------------------
@@ -79,14 +83,9 @@ with DAG(
     catchup=False,
     tags=["ademe"],
 ) as dag:
-
-    transform_data_task = PythonOperator(
-        task_id="transform_data_task",
-        python_callable=transform
-    )
+    transform_data_task = PythonOperator(task_id="transform_data_task", python_callable=transform)
     drop_duplicates_task = PythonOperator(
-        task_id="drop_duplicates_task",
-        python_callable=drop_duplicates
+        task_id="drop_duplicates_task", python_callable=drop_duplicates
     )
 
     transform_data_task >> drop_duplicates_task
