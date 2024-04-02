@@ -22,11 +22,22 @@ Retour au modele
     - simple training class
     - [S] create databricks community account
     - track with MLflow (which one: local or databricks)
-- promote model
-    - send to registry
+    - register model if good enough model
+
+- DAG model training and promotion
+    - add requirements to airflow docker compose
+    - add MLFLOW URI to airflow docker compose
+
+see https://mlflow.org/docs/latest/model-registry.html for concepts
+- promote model logic
+
+
+
+- THEN
     - serve with Fast API
 
-Interface Streamlit
+
+& Interface Streamlit
 - create simple interface with all the menus and dropdowns
 - get prediction
 

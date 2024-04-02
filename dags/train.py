@@ -17,21 +17,29 @@ from sklearn.ensemble import RandomForestClassifier
 from features import FeatureProcessor, FeatureSets
 
 from db_utils import Database
-
+import time
+import random
 # import mlflow
+# from mlflow import MlflowClient
 
-# remote_server_uri = "http://localhost:8088"
+# local = True
+# if local:
+#     remote_server_uri = "http://localhost:9090"
+#     experiment_name = "dpe_tertiaire"
+
+# else:
+#     # Configure MLflow to communicate with a Databricks-hosted tracking server
+#     experiment_name = "/Users/alexis.perrier@skatai.com/dpe_tertiaire"
+#     remote_server_uri = "databricks"
+
 # mlflow.set_tracking_uri(remote_server_uri)
-
-# # set experiment
-# mlflow.set_experiment("experiment_01")
+# mlflow.set_experiment(experiment_name)
 
 # mlflow.sklearn.autolog()
 
 # load data
 
-
-def load_data(n_samples):
+def load_data_inference(n_samples):
     db = Database()
     query = f"""
 select * from dpe_training
@@ -46,6 +54,27 @@ limit {n_samples}
     data = pd.DataFrame(list(df.payload.values))
     data.drop(columns="n_dpe", inplace=True)
     data = data.astype(int)
+    data = data[data.etiquette_dpe >0].copy()
+    data.reset_index(inplace = True, drop = True)
+    return data
+
+def load_data(n_samples):
+    db = Database()
+    query = f"""
+select * from dpe_training
+order by random()
+limit {n_samples}
+"""
+    df = pd.read_sql(query, con=db.engine)
+    db.close()
+    # dump payload into new dataframe
+    df["payload"] = df["payload"].apply(lambda d: json.loads(d))
+
+    data = pd.DataFrame(list(df.payload.values))
+    data.drop(columns="n_dpe", inplace=True)
+    data = data.astype(int)
+    data = data[data.etiquette_dpe >0].copy()
+    data.reset_index(inplace = True, drop = True)
     return data
 
 
@@ -55,13 +84,13 @@ class NotEnoughSamples(ValueError):
 
 class TrainDPE:
     param_grid = {
-        "n_estimators": [50, 100],  # Number of trees
-        "max_depth": [2, 4],  # Maximum depth of the trees
-        "min_samples_leaf": [2, 5],  # Maximum depth of the trees
+        "n_estimators": sorted([random.randint(1, 20)*10 for _ in range(2)]),
+        "max_depth": [random.randint(3, 10)],
+        "min_samples_leaf": [random.randint(2, 5)],
     }
     n_splits = 3
     test_size = 0.3
-    minimum_training_samples = 100
+    minimum_training_samples = 500
 
     def __init__(self, data, target="etiquette_dpe"):
         # drop samples with no target
@@ -73,6 +102,8 @@ class TrainDPE:
             )
 
         self.data = data
+        print(f"training on {data.shape[0]} samples")
+
         self.model = RandomForestClassifier()
         self.target = target
         self.params = {}
@@ -85,8 +116,6 @@ class TrainDPE:
 
     def main(self):
         # shuffle
-        # data = data.sample(frac=1, random_state=808).reset_index(drop=True)
-        # drop n_dpe, targets
 
         X = self.data[FeatureSets.train_columns].copy()  # Features
         y = self.data[self.target].copy()  # Target variable
@@ -128,9 +157,117 @@ class TrainDPE:
         print(f"\tstd(probabilities): {np.round(np.std(self.probabilities), 2)}")
 
 
-if __name__ == "__main__":
-    data = load_data(n_samples = 3000)
-    train = TrainDPE(data)
-    train.main()
-    train.report()
+
+# if __name__ == "__main__":
+#     ctime = int(time.time())
+#     data = load_data(n_samples = 2000)
+#     with mlflow.start_run() as run:
+#         # Your training code here
+
+#         # Access the run_id
+
+#         train = TrainDPE(data)
+#         train.main()
+#         train.report()
+
+#         challenger_model_name = "dpe_challenger"
+#         champion_model_name = "dpe_champion"
+
+#         client = MlflowClient()
+#         run_id = run.info.run_id
+#         model_uri = f"runs:/{run_id}/model"
+
+#         try:
+#             model = client.get_registered_model(challenger_model_name)
+#         except:
+#             print("model does not exist")
+#             print("registering new model", challenger_model_name)
+#             client.create_registered_model(challenger_model_name, description = "sklearn random forest for dpe_tertiaire")
+
+#         # set version and stage
+#         model_version = client.create_model_version(
+#             name=challenger_model_name,
+#             source=model_uri,
+#             run_id=run_id
+#         )
+
+#         client.transition_model_version_stage(
+#             name=challenger_model_name,
+#             version=model_version.version,
+#             stage = 'Staging'
+#         )
+#     # end run
+#     print("--"*20, "Inference")
+#     # test if production model exists
+#     results = client.search_registered_models(filter_string=f"name='{champion_model_name}'")
+#     # if not exists: promote current model
+#     if len(results) == 0:
+#         print("champion model not found, promoting challenger to champion")
+
+#         champion_model = client.copy_model_version(
+#             src_model_uri=f"models:/{challenger_model_name}/Staging",
+#             dst_name=champion_model_name,
+#         )
+#         client.transition_model_version_stage(
+#             name=champion_model_name,
+#             version=champion_model.version,
+#             stage = 'Staging'
+#         )
+
+#         # reload champion and print info
+#         results = client.search_registered_models(filter_string=f"name='{champion_model_name}'")
+#         print(results[0].latest_versions)
+
+
+#     else:
+#         # if exists:
+#         # load data
+#         data = load_data_inference(1000)
+#         print(data.shape)
+#         y = data['etiquette_dpe']
+#         X = data[FeatureSets.train_columns]
+#         # inference challenger and champion
+#         # load model & inference
+#         chl = mlflow.sklearn.load_model(f"models:/{challenger_model_name}/Staging")
+#         yhat = chl.best_estimator_.predict(X)
+#         challenger_precision = precision_score(y, yhat, average="weighted")
+#         challenger_recall = recall_score(y, yhat, average="weighted")
+#         print(f"\t challenger_precision: {np.round(challenger_precision, 2)}")
+#         print(f"\t challenger_recall: {np.round(challenger_recall, 2)}")
+
+#         # inference on production model
+#         champ = mlflow.sklearn.load_model(f"models:/{champion_model_name}/Staging")
+#         yhat = champ.best_estimator_.predict(X)
+#         champion_precision = precision_score(y, yhat, average="weighted")
+#         champion_recall = recall_score(y, yhat, average="weighted")
+#         print(f"\t champion_precision: {np.round(champion_precision, 2)}")
+#         print(f"\t champion_recall: {np.round(champion_recall, 2)}")
+
+#         # if performance 5% above current champion: promote
+#         if challenger_precision > champion_precision * 1.05:
+#             print(f"{challenger_precision} > {champion_precision}")
+#             print("Promoting new model to champion ")
+#             champion_model = client.copy_model_version(
+#                 src_model_uri=f"models:/{challenger_model_name}/Staging",
+#                 dst_name=champion_model_name,
+#             )
+
+#             client.transition_model_version_stage(
+#                 name=champion_model_name,
+#                 version=champion_model.version,
+#                 stage = 'Staging'
+#             )
+#         else:
+#             print(f"{challenger_precision} < {champion_precision}")
+#             print("champion remains undefeated ")
+
+
+#     print(f"elapsed: {int(time.time()) - ctime}s", )
+
+
+#     print("-" * 80)
+#     for res in client.search_registered_models():
+#         for mv in res.latest_versions:
+#             print(mv)
+
 
