@@ -27,13 +27,4 @@ voir https://docs.google.com/document/d/1G1Fyeb3qXDBaKz-dXn5e1Qa0ygrnSMTOopwSIdB
 acceder a airflow sur <IP>: 8080
 acceder a MLflow sur <IP>: 5001
 
-# day 4.2
-
-## Training des modeles et promotion
-
-## servir le modele
-
-## Fast API
-
-# day 4.3 LLMs - RAG
-
+# deploy when pushing
