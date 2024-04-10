@@ -19,16 +19,23 @@ from features import FeatureProcessor, FeatureSets
 from db_utils import Database
 import time
 import random
-# import mlflow
-# from mlflow import MlflowClient
+import mlflow
+from mlflow import MlflowClient
 
-# remote_server_uri = "http://localhost:9090"
-# experiment_name = "dpe_tertiaire"
+# local = True
+# if local:
+remote_server_uri = "http://localhost:9090"
+experiment_name = "dpe_tertiaire"
 
-# mlflow.set_tracking_uri(remote_server_uri)
-# mlflow.set_experiment(experiment_name)
+# else:
+#     # Configure MLflow to communicate with a Databricks-hosted tracking server
+#     experiment_name = "/Users/alexis.perrier@skatai.com/dpe_tertiaire"
+#     remote_server_uri = "databricks"
 
-# mlflow.sklearn.autolog()
+mlflow.set_tracking_uri(remote_server_uri)
+mlflow.set_experiment(experiment_name)
+
+mlflow.sklearn.autolog()
 
 # load data
 
@@ -151,13 +158,16 @@ class TrainDPE:
 
 
 
-# if __name__ == "__main__":
-#     ctime = int(time.time())
-#     data = load_data(n_samples = 2000)
-#     with mlflow.start_run() as run:
-#         train = TrainDPE(data)
-#         train.main()
-#         train.report()
+if __name__ == "__main__":
+    ctime = int(time.time())
+    data = load_data(n_samples = 2000)
+    with mlflow.start_run() as run:
+        train = TrainDPE(data)
+        train.main()
+        train.report()
+
+
+
 
 #         challenger_model_name = "dpe_challenger"
 #         champion_model_name = "dpe_champion"

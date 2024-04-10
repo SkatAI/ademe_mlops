@@ -213,7 +213,7 @@ def upload_data(*op_args):
 
 def cleanup_local_data(*op_args):
     """
-    removes downlaoded files only keeps {keep_n}
+    removes downloaded files only keeps {keep_n}
     """
     keep_n = 4
     container_client_ = op_args[0]
@@ -245,6 +245,7 @@ def save_postgresdb():
         data = json.load(file)
 
     data = pd.DataFrame(data["results"])
+
     # set columns
     new_columns = rename_columns(data.columns)
     data.columns = new_columns
@@ -345,7 +346,9 @@ with DAG(
     )
 
     cleanup_local_data = PythonOperator(
-        task_id="cleanup_local_data", python_callable=cleanup_local_data, op_args=[container_client]
+        task_id="cleanup_local_data",
+        python_callable=cleanup_local_data,
+        op_args=[container_client]
     )
 
     save_postgresdb = PythonOperator(
@@ -366,3 +369,5 @@ with DAG(
     # upload data
     process_results.set_downstream(upload_data)
     upload_data.set_downstream(cleanup_local_data)
+
+    # check_environment_setup >> ademe_api >> process_results >> save_postgresdb >> drop_duplicates >> cleanup_local_data

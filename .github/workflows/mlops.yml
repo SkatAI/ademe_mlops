@@ -1,4 +1,4 @@
-name: Validate RAG code
+name: Validate code
 
 on: [push]
 jobs:
@@ -23,3 +23,23 @@ jobs:
       #   run: |
       #     make lint
 
+
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Set up SSH connection
+      uses: webfactory/ssh-agent@v0.5.3
+      with:
+        ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+
+    - name: Deploy code to VM
+      run: |
+        ssh -o StrictHostKeyChecking=no alexisperrier@52.168.21.73 << 'EOF'
+          cd /home/alexisperrier/ademe_mlops
+          git pull origin master
+          # Any other commands you need to run
+        EOF
