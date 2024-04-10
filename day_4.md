@@ -1,5 +1,7 @@
 # day 4.1
 
+voir https://docs.google.com/document/d/1G1Fyeb3qXDBaKz-dXn5e1Qa0ygrnSMTOopwSIdB6KvE/edit
+
 ##  airflow + MLflow sur instance Azure
 - creer une instance
 - connection ssh
