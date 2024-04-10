@@ -28,3 +28,23 @@ acceder a airflow sur <IP>: 8080
 acceder a MLflow sur <IP>: 5001
 
 # deploy when pushing
+
+On the VM create ssh key  with
+ssh-keygen -t rsa -b 4096 -C "your_email@example.com"
+
+no password
+
+add ~/.ssh/id_rsa.pub to github SSH keys from your profile
+
+
+sur la VM, verifier que vous pouvez pull from github
+
+mkdir ademe_mlops
+cd ademe_mlops
+git init
+git remote add origin git@github.com:SkatAI/ademe_mlops.git
+git pull origin master
+
+mainteant pour ajouter la cle pour le deploiement
+
+add ~/.ssh/id_rsa to secrets on the repo
