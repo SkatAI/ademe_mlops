@@ -48,3 +48,18 @@ git pull origin master
 mainteant pour ajouter la cle pour le deploiement
 
 add ~/.ssh/id_rsa to secrets on the repo
+
+modifier le code
+commit, push
+verifier que le code est mis a jour sur la VM
+
+maintenant, ne deployer le code que si le build passe
+
+ajouter la ligne needs
+
+deploy:
+    needs: build  # This ensures deploy only runs if build is successful
+    runs-on: ubuntu-latest
+
+
+
