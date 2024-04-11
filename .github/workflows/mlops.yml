@@ -19,12 +19,13 @@ jobs:
         run: |
           make format
 
-      # - name: Lint with pyLint
-      #   run: |
-      #     make lint
+      - name: Lint with pyLint
+        run: |
+          make lint
 
 
   deploy:
+    needs: build
     runs-on: ubuntu-latest
 
     steps:
