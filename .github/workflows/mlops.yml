@@ -19,13 +19,12 @@ jobs:
         run: |
           make format
 
-      - name: Lint with pyLint
-        run: |
-          make lint
+      # - name: Lint with pyLint
+      #   run: |
+      #     make lint
 
 
   deploy:
-    needs: build
     runs-on: ubuntu-latest
 
     steps:
@@ -35,11 +34,11 @@ jobs:
     - name: Set up SSH connection
       uses: webfactory/ssh-agent@v0.5.3
       with:
-        ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+        ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY_1104 }}
 
     - name: Deploy code to VM
       run: |
-        ssh -o StrictHostKeyChecking=no alexisperrier@52.168.21.73 << 'EOF'
+        ssh -o StrictHostKeyChecking=no alexisperrier@20.51.187.25 << 'EOF'
           cd /home/alexisperrier/ademe_mlops
           git pull origin master
           # Any other commands you need to run

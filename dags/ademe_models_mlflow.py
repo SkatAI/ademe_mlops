@@ -270,7 +270,7 @@ with DAG(
         "retry_delay": timedelta(minutes=10),
     },
     description="Model training and promotion",
-    schedule=None,
+    schedule="*/15 * * * *",
     start_date=datetime(2024, 1, 1),
     catchup=False,
     tags=["ademe"],
