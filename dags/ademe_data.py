@@ -50,10 +50,6 @@ def init_container_client():
 
 
 def rename_columns(columns: t.List[str]) -> t.List[str]:
-    """
-    rename columns
-    """
-
     columns = [col.lower() for col in columns]
 
     rgxs = [
@@ -346,9 +342,7 @@ with DAG(
     )
 
     cleanup_local_data = PythonOperator(
-        task_id="cleanup_local_data",
-        python_callable=cleanup_local_data,
-        op_args=[container_client]
+        task_id="cleanup_local_data", python_callable=cleanup_local_data, op_args=[container_client]
     )
 
     save_postgresdb = PythonOperator(

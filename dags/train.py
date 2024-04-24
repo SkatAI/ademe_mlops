@@ -19,6 +19,7 @@ from features import FeatureProcessor, FeatureSets
 from db_utils import Database
 import time
 import random
+
 # import mlflow
 # from mlflow import MlflowClient
 
@@ -31,6 +32,7 @@ import random
 # mlflow.sklearn.autolog()
 
 # load data
+
 
 def load_data_inference(n_samples):
     db = Database()
@@ -47,9 +49,10 @@ limit {n_samples}
     data = pd.DataFrame(list(df.payload.values))
     data.drop(columns="n_dpe", inplace=True)
     data = data.astype(int)
-    data = data[data.etiquette_dpe >0].copy()
-    data.reset_index(inplace = True, drop = True)
+    data = data[data.etiquette_dpe > 0].copy()
+    data.reset_index(inplace=True, drop=True)
     return data
+
 
 def load_data(n_samples):
     db = Database()
@@ -66,8 +69,8 @@ limit {n_samples}
     data = pd.DataFrame(list(df.payload.values))
     data.drop(columns="n_dpe", inplace=True)
     data = data.astype(int)
-    data = data[data.etiquette_dpe >0].copy()
-    data.reset_index(inplace = True, drop = True)
+    data = data[data.etiquette_dpe > 0].copy()
+    data.reset_index(inplace=True, drop=True)
     return data
 
 
@@ -77,7 +80,7 @@ class NotEnoughSamples(ValueError):
 
 class TrainDPE:
     param_grid = {
-        "n_estimators": sorted([random.randint(1, 20)*10 for _ in range(2)]),
+        "n_estimators": sorted([random.randint(1, 20) * 10 for _ in range(2)]),
         "max_depth": [random.randint(3, 10)],
         "min_samples_leaf": [random.randint(2, 5)],
     }
@@ -103,9 +106,8 @@ class TrainDPE:
         self.train_score = 0.0
 
         self.precision_score = 0.0
-        self.recall_score =  0.0
-        self.probabilities =  [0.0, 0.0]
-
+        self.recall_score = 0.0
+        self.probabilities = [0.0, 0.0]
 
     def main(self):
         # shuffle
@@ -139,16 +141,15 @@ class TrainDPE:
 
     def report(self):
         # Best parameters and best score
-        print("--"*20, "Best model")
+        print("--" * 20, "Best model")
         print(f"\tparameters: {self.params}")
         print(f"\tcross-validation score: {self.train_score}")
         print(f"\tmodel: {self.model}")
-        print("--"*20, "performance")
+        print("--" * 20, "performance")
         print(f"\tprecision_score: {np.round(self.precision_score, 2)}")
         print(f"\trecall_score: {np.round(self.recall_score, 2)}")
         print(f"\tmedian(probabilities): {np.round(np.median(self.probabilities), 2)}")
         print(f"\tstd(probabilities): {np.round(np.std(self.probabilities), 2)}")
-
 
 
 # if __name__ == "__main__":
@@ -258,5 +259,3 @@ class TrainDPE:
 #     for res in client.search_registered_models():
 #         for mv in res.latest_versions:
 #             print(mv)
-
-

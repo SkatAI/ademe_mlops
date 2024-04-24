@@ -10,10 +10,10 @@ mlruns.db
 
 .DS_store
 **/.DS_store
-__pycache__/
 **/__pycache__
-.coverage
 
+.coverage
+__pycache__/
 .ipynb_checkpoints
 
 .~lock.*

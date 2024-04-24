@@ -8,12 +8,14 @@ import pandas as pd
 import numpy as np
 import json
 from mlflow import MlflowClient
+
 experiment_name = "dpe_tertiaire"
 
 # mlflow.set_tracking_uri("http://host.docker.internal:5001")
 # mlflow.set_tracking_uri("http://localhost:9090")
 
 mlflow.set_tracking_uri("http://localhost:5001")
+
 
 def load_data_for_inference():
     db = Database()
@@ -26,11 +28,11 @@ def load_data_for_inference():
 
     data.drop(columns="n_dpe", inplace=True)
     data = data.astype(int)
-    data = data[data.etiquette_dpe >0].copy()
-    data.reset_index(inplace = True, drop = True)
+    data = data[data.etiquette_dpe > 0].copy()
+    data.reset_index(inplace=True, drop=True)
     print(data.shape)
     data = data.sample(1)
-    y = data['etiquette_dpe']
+    y = data["etiquette_dpe"]
     X = data[FeatureSets.train_columns]
 
     return X, y
@@ -46,8 +48,6 @@ print(f"y: {y}")
 print(f"yhat: {yhat}")
 print(f"proba: {np.round(champ.best_estimator_.predict_proba(X)[0][yhat-1]*100.0,1)}%")
 print(champ.best_estimator_.predict_proba(X)[0])
-
-
 
 
 # # Initialize the Flask application

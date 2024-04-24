@@ -23,6 +23,7 @@ from airflow.models import Variable
 from db_utils import Database
 from features import FeatureSets
 import random
+
 logger = logging.getLogger(__name__)
 
 # --------------------------------------------------
@@ -32,7 +33,7 @@ logger = logging.getLogger(__name__)
 
 class TrainDPE:
     param_grid = {
-        "n_estimators": sorted([random.randint(1, 20)*10 for _ in range(2)]),
+        "n_estimators": sorted([random.randint(1, 20) * 10 for _ in range(2)]),
         "max_depth": [random.randint(3, 10)],
         "min_samples_leaf": [random.randint(2, 5)],
     }
@@ -58,9 +59,8 @@ class TrainDPE:
         self.train_score = 0.0
 
         self.precision_score = 0.0
-        self.recall_score =  0.0
-        self.probabilities =  [0.0, 0.0]
-
+        self.recall_score = 0.0
+        self.probabilities = [0.0, 0.0]
 
     def main(self):
         # shuffle
@@ -94,11 +94,11 @@ class TrainDPE:
 
     def report(self):
         # Best parameters and best score
-        print("--"*20, "Best model")
+        print("--" * 20, "Best model")
         print(f"\tparameters: {self.params}")
         print(f"\tcross-validation score: {self.train_score}")
         print(f"\tmodel: {self.model}")
-        print("--"*20, "performance")
+        print("--" * 20, "performance")
         print(f"\tprecision_score: {np.round(self.precision_score, 2)}")
         print(f"\trecall_score: {np.round(self.recall_score, 2)}")
         print(f"\tmedian(probabilities): {np.round(np.median(self.probabilities), 2)}")
@@ -109,6 +109,7 @@ class TrainDPE:
 # set up MLflow
 # --------------------------------------------------
 from mlflow import MlflowClient
+
 experiment_name = "dpe_tertiaire"
 
 # mlflow.set_tracking_uri("http://host.docker.internal:5001")
@@ -117,9 +118,9 @@ experiment_name = "dpe_tertiaire"
 mlflow.set_tracking_uri("http://mlflow:5000")
 
 
-print("--"*40)
+print("--" * 40)
 print("mlflow set experiment")
-print("--"*40)
+print("--" * 40)
 mlflow.set_experiment(experiment_name)
 
 mlflow.sklearn.autolog()
@@ -127,6 +128,7 @@ mlflow.sklearn.autolog()
 # --------------------------------------------------
 # load data
 # --------------------------------------------------
+
 
 def load_data_for_inference(n_samples):
     db = Database()
@@ -139,13 +141,14 @@ def load_data_for_inference(n_samples):
 
     data.drop(columns="n_dpe", inplace=True)
     data = data.astype(int)
-    data = data[data.etiquette_dpe >0].copy()
-    data.reset_index(inplace = True, drop = True)
+    data = data[data.etiquette_dpe > 0].copy()
+    data.reset_index(inplace=True, drop=True)
     print(data.shape)
-    y = data['etiquette_dpe']
+    y = data["etiquette_dpe"]
     X = data[FeatureSets.train_columns]
 
     return X, y
+
 
 def load_data_for_training(n_samples):
     # TODO simply load payload not all columns
@@ -158,9 +161,10 @@ def load_data_for_training(n_samples):
     data = pd.DataFrame(list(df.payload.values))
     data.drop(columns="n_dpe", inplace=True)
     data = data.astype(int)
-    data = data[data.etiquette_dpe >0].copy()
-    data.reset_index(inplace = True, drop = True)
+    data = data[data.etiquette_dpe > 0].copy()
+    data.reset_index(inplace=True, drop=True)
     return data
+
 
 # ---------------------------------------------
 #  tasks
@@ -169,8 +173,9 @@ challenger_model_name = "dpe_challenger"
 champion_model_name = "dpe_champion"
 client = MlflowClient()
 
+
 def train_model():
-    data = load_data_for_training(n_samples = 2000)
+    data = load_data_for_training(n_samples=2000)
     with mlflow.start_run() as run:
         train = TrainDPE(data)
         train.main()
@@ -181,27 +186,26 @@ def train_model():
         except:
             print("model does not exist")
             print("registering new model", challenger_model_name)
-            client.create_registered_model(challenger_model_name, description = "sklearn random forest for dpe_tertiaire")
+            client.create_registered_model(
+                challenger_model_name, description="sklearn random forest for dpe_tertiaire"
+            )
 
         # set version and stage
         run_id = run.info.run_id
         model_uri = f"runs:/{run_id}/model"
         model_version = client.create_model_version(
-            name=challenger_model_name,
-            source=model_uri,
-            run_id=run_id
+            name=challenger_model_name, source=model_uri, run_id=run_id
         )
 
         client.transition_model_version_stage(
-            name=challenger_model_name,
-            version=model_version.version,
-            stage = 'Staging'
+            name=challenger_model_name, version=model_version.version, stage="Staging"
         )
 
+
 def create_champion():
-    '''
+    """
     if there is not champion yet, creates a champion from current challenger
-    '''
+    """
     results = client.search_registered_models(filter_string=f"name='{champion_model_name}'")
     # if not exists: promote current model
     if len(results) == 0:
@@ -212,9 +216,7 @@ def create_champion():
             dst_name=champion_model_name,
         )
         client.transition_model_version_stage(
-            name=champion_model_name,
-            version=champion_model.version,
-            stage = 'Staging'
+            name=champion_model_name, version=champion_model.version, stage="Staging"
         )
 
         # reload champion and print info
@@ -223,7 +225,6 @@ def create_champion():
 
 
 def promote_model():
-
     X, y = load_data_for_inference(1000)
     # inference challenger and champion
     # load model & inference
@@ -243,7 +244,7 @@ def promote_model():
     print(f"\t champion_recall: {np.round(champion_recall, 2)}")
 
     # if performance 5% above current champion: promote
-    if challenger_precision > champion_precision :
+    if challenger_precision > champion_precision:
         print(f"{challenger_precision} > {champion_precision}")
         print("Promoting new model to champion ")
         champion_model = client.copy_model_version(
@@ -252,13 +253,12 @@ def promote_model():
         )
 
         client.transition_model_version_stage(
-            name=champion_model_name,
-            version=champion_model.version,
-            stage = 'Staging'
+            name=champion_model_name, version=champion_model.version, stage="Staging"
         )
     else:
         print(f"{challenger_precision} < {champion_precision}")
         print("champion remains undefeated ")
+
 
 # ---------------------------------------------
 #  DAG
@@ -275,21 +275,12 @@ with DAG(
     catchup=False,
     tags=["ademe"],
 ) as dag:
-    train_model_task = PythonOperator(
-        task_id="train_model_task",
-        python_callable=train_model
-    )
+    train_model_task = PythonOperator(task_id="train_model_task", python_callable=train_model)
 
     create_champion_task = PythonOperator(
-        task_id="create_champion_task",
-        python_callable=create_champion
+        task_id="create_champion_task", python_callable=create_champion
     )
 
-    promote_model_task = PythonOperator(
-        task_id="promote_model_task",
-        python_callable=promote_model
-    )
+    promote_model_task = PythonOperator(task_id="promote_model_task", python_callable=promote_model)
 
     train_model_task >> create_champion_task >> promote_model_task
-
-
