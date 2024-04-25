@@ -5,6 +5,12 @@
 
 from dags.features import FeatureProcessor, FeatureSets
 from fastapi import FastAPI
+from pydantic import BaseModel
+
+from mlflow import MlflowClient
+import mlflow
+import pandas as pd
+
 
 # raw_data = {
 #     # 'n_dpe': '2391T1055502K',
@@ -35,14 +41,24 @@ async def bonjour(name: str):
     return {"message": f"Bonjour {name}"}
 
 
-# test with
-# curl -X POST
-@app.post("/predict/")
-async def predict(data: dict):
-    return dict
+class Data(BaseModel):  # Define a Pydantic model to correctly parse and validate incoming data
+    data: dict
 
-# curl --header "Content-Type: application/json" \
-#      --data "$(cat ~/sample.json)" \
-#      http://20.51.187.25:8000/predict/
+@app.post("/predict/")  # Change to POST method
+async def predict(data: Data):  # Use the Pydantic model for data validation
+    raw_data = pd.DataFrame([data.data])
+    fp = FeatureProcessor(raw_data, "etiquette_dpe")
+    fp.process()
+    # load champion model
+    # challenger_model_name = "dpe_challenger"
+    # client = MlflowClient()
+    champion_model_name = "dpe_champion"
+    champ = mlflow.sklearn.load_model(f"models:/{champion_model_name}/Staging")
+    print(champ)
+    yhat = champ.best_estimator_.predict(fp.data)
+    print(yhat)
 
-#     #  --trace-ascii trace-json-data-request.log \
+
+
+    return yhat
+

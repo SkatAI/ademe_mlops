@@ -1,12 +1,13 @@
 {
-    "version_dpe": "2.2",
-    "periode_construction": "1983-1988",
-    "secteur_activite": "W : Administrations, banques, bureaux",
-    "type_energie_principale_chauffage": "",
-    "type_energie_n_1": "Électricité",
-    "type_usage_energie_n_1": "Refroidissement",
-    "surface_utile": "100.0",
-    "conso_kwhep_m2_an": "81.1",
-    "conso_e_finale_energie_n_1": "2474.3"
+    "data": {
+        "version_dpe": "2.2",
+        "periode_construction": "1983-1988",
+        "secteur_activite": "W : Administrations, banques, bureaux",
+        "type_energie_principale_chauffage": "",
+        "type_energie_n_1": "Électricité",
+        "type_usage_energie_n_1": "Refroidissement",
+        "surface_utile": 100,
+        "conso_kwhep_m2_an": 81.1,
+        "conso_e_finale_energie_n_1": 2474.3
+    }
 }
-

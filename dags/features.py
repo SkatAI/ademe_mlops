@@ -57,7 +57,7 @@ class FeatureSets:
     ]
 
     columns_categorical = [
-        "version_dpe",
+        # "version_dpe",
         "periode_construction",
         "secteur_activite",
         "type_energie_principale_chauffage",
@@ -243,8 +243,11 @@ class FeatureProcessor:
 
         # encode targets
         for target in ["etiquette_dpe", "etiquette_ges"]:
-            self.encode_categorical_wth_map(target, FeatureSets.map_target, default_unknown=-1)
-
+            try:
+                if target in self.data.columns():
+                    self.encode_categorical_wth_map(target, FeatureSets.map_target, default_unknown=-1)
+            except:
+                pass
     def encode_floats(self):
         self.data[FeatureSets.columns_num] = (
             self.data[FeatureSets.columns_num].astype(float).astype(int)
