@@ -1,3 +1,15 @@
+# Next, final session
+
+- load model with MLFlow
+- serve prediction with FastAPI
+- add data transform FastAPI
+- create streamlit
+- add FastAPI to docker compose
+
+- make sure airflow and FastAPI start when the VM starts
+
+- simplify evaluation
+
 # Next airflow pipeline
 
 - get new data

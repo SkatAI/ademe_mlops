@@ -1,9 +1,0 @@
-{
-	"name": "datafactory-ademe-mlops",
-	"location": "francecentral",
-	"identity": {
-		"type": "SystemAssigned",
-		"principalId": "36886089-1046-480e-93a5-c01dc2ddbbfd",
-		"tenantId": "34f2bca5-64de-4107-9283-905668a010b4"
-	}
-}
