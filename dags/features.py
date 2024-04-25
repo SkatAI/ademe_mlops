@@ -10,7 +10,6 @@ import pandas as pd
 # pd.options.display.precision = 10
 # pd.options.display.width = 160
 
-from db_utils import Database
 
 
 class FeatureSets:
@@ -260,6 +259,8 @@ class FeatureProcessor:
 
 if __name__ == "__main__":
     # handled by the DAG load_data
+    from db_utils import Database
+
     db = Database()
     columns = ",".join(FeatureSets.input_columns)
     query = f"""
