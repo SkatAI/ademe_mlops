@@ -17,7 +17,6 @@ import logging
 
 from airflow.models.dag import DAG
 from airflow.operators.python import PythonOperator
-from airflow.models import Variable
 
 # local
 from db_utils import Database
@@ -25,6 +24,10 @@ from features import FeatureSets
 import random
 
 logger = logging.getLogger(__name__)
+
+class NotEnoughSamples(ValueError):
+    pass
+
 
 # --------------------------------------------------
 # TrainDPE class
