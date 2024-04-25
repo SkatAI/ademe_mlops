@@ -4,6 +4,7 @@
 # from enum import Enum
 
 from dags.features import FeatureProcessor, FeatureSets
+from fastapi import FastAPI
 
 raw_data = {
     # 'n_dpe': '2391T1055502K',
@@ -20,23 +21,9 @@ raw_data = {
     'conso_e_finale_energie_n_1': '2474.3'
 }
 
-train_columns = [
-    "periode_construction",
-    "secteur_activite",
-    "type_energie_principale_chauffage",
-    "type_energie_n_1",
-    "type_usage_energie_n_1",
-    "surface_utile",
-    "conso_kwhep_m2_an",
-    "conso_e_finale_energie_n_1",
-    "version_dpe",
-]
 
-
-from fastapi import FastAPI
 
 app = FastAPI()
-
 
 @app.get("/")
 async def root():
